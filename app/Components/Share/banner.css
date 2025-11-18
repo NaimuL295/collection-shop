@@ -1,0 +1,259 @@
+/* banner.css */
+
+/* Main Swiper Container */
+.mySwiper {
+  width: 100%;
+  height: 500px;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Slide Styles */
+.swiper-slide {
+  text-align: center;
+  font-size: 18px;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Pagination Styles */
+.swiper-pagination {
+  bottom: 20px !important;
+}
+
+.swiper-pagination-bullet {
+  width: 12px;
+  height: 12px;
+  background: white;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+  margin: 0 6px !important;
+}
+
+.swiper-pagination-bullet-active {
+  opacity: 1;
+  background: white;
+  transform: scale(1.2);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Dynamic Bullets */
+.swiper-pagination-bullets-dynamic {
+  overflow: hidden;
+}
+
+/* Navigation Button Styles - HIDDEN */
+.swiper-button-next,
+.swiper-button-prev {
+  display: none !important;
+}
+
+/* Fade Effect Animation */
+.swiper-slide {
+  opacity: 0 !important;
+  transition: opacity 0.8s ease-in-out;
+}
+
+.swiper-slide-active {
+  opacity: 1 !important;
+}
+
+.swiper-slide-prev,
+.swiper-slide-next {
+  opacity: 0.3 !important;
+}
+
+/* Progress Bar for Autoplay */
+.swiper-autoplay-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  z-index: 20;
+}
+
+.swiper-autoplay-progress-fill {
+  height: 100%;
+  background: white;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+/* Creative Slide Animations */
+.slide-content {
+  transform: translateY(30px);
+  opacity: 0;
+  transition: all 0.8s ease;
+}
+
+.swiper-slide-active .slide-content {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Gradient Overlays */
+.gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.2) 50%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  z-index: 1;
+}
+
+/* Text Shadows for Better Readability */
+.slide-text {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Button Styles */
+.slide-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.slide-button:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.slide-button:hover:before {
+  left: 100%;
+}
+
+/* Loading Animation */
+.swiper-lazy-preloader {
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .mySwiper {
+    height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mySwiper {
+    height: 350px;
+    border-radius: 12px;
+  }
+  
+  .swiper-pagination-bullet {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mySwiper {
+    height: 300px;
+    border-radius: 8px;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .swiper-pagination-bullet {
+    background: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .swiper-pagination-bullet {
+    border: 1px solid white;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .swiper-slide {
+    transition: none !important;
+  }
+  
+  .slide-content {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .swiper-pagination {
+    display: none !important;
+  }
+  
+  .mySwiper {
+    height: auto !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Custom Animation Classes */
+.fade-in-up {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scale-in {
+  animation: scaleIn 0.6s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Accessibility Improvements */
+.swiper-pagination-bullet:focus {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
