@@ -1,23 +1,3 @@
-// import React from 'react'
-
-// export default function PackageType() {
-//   return (
-//     <div className="max-w-2xl mx-auto p-6">
-//       <h2 className="text-2xl font-bold text-center mb-6">Choose Package</h2>
-      
-//       <div className="flex flex-col sm:flex-row gap-4 justify-center">
-//         <div className="flex-1 border border-blue-300 rounded-lg p-4 text-center cursor-pointer hover:bg-blue-50 transition-colors">
-//           <h3 className="text-lg font-semibold text-blue-600">Student Package</h3>
-//         </div>
-        
-//         <div className="flex-1 border border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors">
-//           <h3 className="text-lg font-semibold text-gray-800">Premium Package</h3>
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
 import React from 'react'
 import Link from 'next/link'
 
