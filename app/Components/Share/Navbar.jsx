@@ -333,17 +333,17 @@ import {
 
 // Mock User
 const useUser = () => {
-  return { role: "user", name: "Regular User" };
+  return { role: "superadmin", name: "Regular User" };
 };
 
 const adminMenuItems = [
-  { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/admin/orders", icon: Package, label: "Orders" },
-  { href: "/admin/customers", icon: Users, label: "Customers" },
-  { href: "/admin/analytics", icon: BarChart3, label: "Analytics" },
+  // { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/orders", icon: Package, label: "Orders" },
+  { href: "/customers", icon: Users, label: "Customers" },
+  { href: "/analytics", icon: BarChart3, label: "Analytics" },
   { href: "/inventory-management", icon: ClipboardList, label: "Inventory" },
-  { href: "/admin/discounts", icon: Ticket, label: "Discounts" },
-  { href: "/admin/settings", icon: Settings, label: "Settings" },
+  // { href: "/admin/discounts", icon: Ticket, label: "Discounts" },
+  // { href: "/admin/settings", icon: Settings, label: "Settings" },
 ];
 
 const userMenuItems = [
