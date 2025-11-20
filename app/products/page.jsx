@@ -703,6 +703,7 @@ import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import Image from "next/image";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -980,118 +981,119 @@ export default function ProductsPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {products.map((product) => (
-                <div
-                  key={product._id}
-                  className="relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 group border border-gray-100 overflow-hidden"
-                >
-                  {/* Wishlist Button */}
-                  <button
-                    onClick={() => addToWishlist(product)}
-                    className="absolute top-3 right-3 z-20 bg-white/90 backdrop-blur-md p-2 rounded-full shadow-sm hover:scale-105 transition-all duration-200"
-                  >
-                    <Heart
-                      className={`w-5 h-5 transition-all duration-200 ${
-                        isInWishlist(product._id)
-                          ? "text-red-500 fill-red-500 scale-110"
-                          : "text-gray-400 group-hover:text-red-500 group-hover:scale-110"
-                      }`}
-                    />
-                  </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+  {products.map((product) => (
+    <Link
+      href={`/product/${product._id}`}
+      key={product._id}
+      className="block"
+    >
+      <div className="relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 group border border-gray-100 overflow-hidden">
+        
+        {/* Wishlist Button */}
+        <button
+          onClick={(e) => {
+            e.preventDefault(); // prevent link click
+            addToWishlist(product);
+          }}
+          className="absolute top-3 right-3 z-20 bg-white/90 backdrop-blur-md p-2 rounded-full shadow-sm hover:scale-105 transition-all duration-200"
+        >
+          <Heart
+            className={`w-5 h-5 transition-all duration-200 ${
+              isInWishlist(product._id)
+                ? "text-red-500 fill-red-500 scale-110"
+                : "text-gray-400 group-hover:text-red-500 group-hover:scale-110"
+            }`}
+          />
+        </button>
 
-                  {/* Badge */}
-                  {product.stock <= 0 && (
-                    <span className="absolute top-3 left-3 z-20 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md">
-                      Out of Stock
-                    </span>
-                  )}
+        {/* Badge */}
+        {product.stock <= 0 && (
+          <span className="absolute top-3 left-3 z-20 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md">
+            Out of Stock
+          </span>
+        )}
 
-                  {/* Image Section */}
-                  <div className="relative h-48 w-full bg-gray-100 overflow-hidden">
-                 {product.images?.length > 0 && product.images[0].url ? (
-                      <Image
-                        src={product.images[2].url}
-                        alt={product.name || "Product Image"}
-                        fill
-                        className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
-                        onError={(e) => {
-                          e.target.src = "/images/placeholder.jpg";
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        <div className="text-center">
-                          <div className="text-2xl mb-1 mt-1">📷</div>
-                          <div className="text-xs">No Image</div>
-
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Product Details */}
-                  <div className="p-2">
-                    <h3 className="font-semibold text-gray-900 mb-2 text-base leading-tight line-clamp-2">
-                      {product.name}
-                    </h3>
-
-           
-                    {/* Price Section */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        {product.offerprice && product.offerprice < product.price ? (
-                          <>
-                            <p className="text-xl font-bold ">
-                              ৳{product.offerprice}
-                            </p>
-                            <p className="text-sm text-gray-400 line-through">
-                              ৳{product.price}
-                            </p>
-                          </>
-                        ) : (
-                          <p className="text-xl font-bold text-blue-600">
-                            ${product.price}
-                          </p>
-                        )}
-                      </div>
-
-                      {product.stock > 0 ? (
-                        <span className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full">
-                          In Stock ({product.stock})
-                        </span>
-                      ) : (
-                        <span className="text-xs text-red-700 bg-red-100 px-2 py-1 rounded-full">
-                          Out of Stock
-                        </span>
-                      )}
-                    </div>
-
-      
-                    {/* Add to Cart Button */}
-                    <button
-                      onClick={() => addToCart(product)}
-                      disabled={product.stock <= 0}
-                      className={`w-full py-3 rounded-xl text-sm font-medium transition-all duration-300 shadow-sm flex items-center justify-center gap-2
-                        ${
-                          product.stock > 0
-                            ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 active:scale-95"
-                            : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                        }`}
-                    >
-                      {product.stock > 0 ? (
-                        <>
-                          <span>🛒</span>
-                          Add to Cart
-                        </>
-                      ) : (
-                        "Out of Stock"
-                      )}
-                    </button>
-                  </div>
-                </div>
-              ))}
+        {/* Image Section */}
+        <div className="relative h-48 w-full bg-gray-100 overflow-hidden">
+          {product.images?.[0]?.url ? (
+            <Image
+              src={product.images?.[0]?.url}
+              alt={product.name || "Product Image"}
+              fill
+              className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-400">
+              <div className="text-center">
+                <div className="text-2xl mb-1 mt-1">📷</div>
+                <div className="text-xs">No Image</div>
+              </div>
             </div>
+          )}
+        </div>
+
+        {/* Product Details */}
+        <div className="p-2">
+          <h3 className="font-semibold text-gray-900 mb-2 text-base leading-tight line-clamp-2">
+            {product.name}
+          </h3>
+
+          {/* Price Section */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              {product.offerprice && product.offerprice < product.price ? (
+                <>
+                  <p className="text-xl font-bold ">৳{product.offerprice}</p>
+                  <p className="text-sm text-gray-400 line-through">৳{product.price}</p>
+                </>
+              ) : (
+                <p className="text-xl font-bold text-blue-600">
+                  ${product.price}
+                </p>
+              )}
+            </div>
+
+            {product.stock > 0 ? (
+              <span className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full">
+                In Stock ({product.stock})
+              </span>
+            ) : (
+              <span className="text-xs text-red-700 bg-red-100 px-2 py-1 rounded-full">
+                Out of Stock
+              </span>
+            )}
+          </div>
+
+          {/* Add to Cart Button */}
+          <button
+            onClick={(e) => {
+              e.preventDefault(); // prevent redirect
+              addToCart(product);
+            }}
+            disabled={product.stock <= 0}
+            className={`w-full py-3 rounded-xl text-sm font-medium transition-all duration-300 shadow-sm flex items-center justify-center gap-2
+              ${
+                product.stock > 0
+                  ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 active:scale-95"
+                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
+              }`}
+          >
+            {product.stock > 0 ? (
+              <>
+                <span>🛒</span>
+                Add to Cart
+              </>
+            ) : (
+              "Out of Stock"
+            )}
+          </button>
+        </div>
+      </div>
+    </Link>
+  ))}
+</div>
+
           </>
         )}
 

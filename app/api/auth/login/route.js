@@ -1,36 +1,31 @@
-import { NextResponse } from "next/server";
-
-import bcrypt from "bcryptjs";
+import { dbConnect } from "@/lib/dbConnect";
 import User from "@/models/User";
-import { signToken } from "@/utils/jwt";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 
 export async function POST(req) {
+  await dbConnect();
+
   const { email, password } = await req.json();
 
-  const user = User.find((u) => u.email === email);
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const user = await User.findOne({ email });
+  if (!user)
+    return new Response(JSON.stringify({ error: "User not found" }), { status: 400 });
 
   const match = await bcrypt.compare(password, user.password);
-  if (!match) {
-    return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
-  }
+  if (!match)
+    return new Response(JSON.stringify({ error: "Invalid password" }), { status: 400 });
 
-  const token = signToken({ id: user.id, email: user.email });
-
-  const res = NextResponse.json({
-    message: "Login successful",
-    user: { id: user.id, email: user.email },
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
   });
 
-  res.cookies.set("token", token, {
-    httpOnly: true,
-    secure: true,
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+  return new Response(JSON.stringify({ success: true }), {
+    status: 200,
+    headers: {
+      "Set-Cookie": `token=${token}; HttpOnly; Path=/; Max-Age=604800; SameSite=Strict; Secure`,
+      "Content-Type": "application/json",
+    },
   });
-
-  return res;
 }

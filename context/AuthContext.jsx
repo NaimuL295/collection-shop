@@ -1,32 +1,32 @@
 "use client";
-import { createContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
+export const useAuth = () => useContext(AuthContext);
 
-export default function AuthProvider({ children }) {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Load current user from /api/me
-  useEffect(() => {
-    async function loadUser() {
-      try {
-        const res = await fetch("/api/me", {
-          credentials: "include",
-        });
-
-        const data = await res.json();
-        if (data.user) setUser(data.user);
-      } catch (err) {
-        setUser(null);
-      }
+  const loadUser = async () => {
+    try {
+      const res = await fetch("/api/auth/me");
+      const data = await res.json();
+      setUser(data.user || null);
+    } catch (err) {
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
+  };
 
+  useEffect(() => {
     loadUser();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
-      {children}
+    <AuthContext.Provider value={{ user, setUser, loading }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 }

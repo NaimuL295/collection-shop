@@ -1,86 +1,79 @@
 "use client";
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/context/AuthContext";
 
-export default function LoginPage() {
+export default function Login() {
   const router = useRouter();
-  const { setUser } = useContext(AuthContext);
-
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  // Handle form change
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
-
-  // Handle submit
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-        credentials: "include",
+        body: JSON.stringify({ email, password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
       const data = await res.json();
 
-      if (!res.ok) {
-        setError(data.error || "Login failed");
-        setLoading(false);
-        return;
+      if (data.success) {
+        router.push("/"); // SUCCESS → HOME
+      } else {
+        setError(data.error || "Invalid credentials");
       }
-
-      // Set user context
-      setUser(data.user);
-
-      // Redirect to dashboard
-      router.push("/");
     } catch (err) {
-      setError("Something went wrong");
-    } finally {
-      setLoading(false);
+      setError("Network error");
     }
   };
 
   return (
-    <div style={{ padding: "40px", maxWidth: "400px", margin: "0 auto" }}>
-      <h1>Login</h1>
+    <div className="max-w-md mx-auto bg-white shadow-lg rounded-xl p-8 mt-10">
+      <h1 className="text-3xl font-bold text-center mb-6">Login</h1>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: "12px" }}
-      >
+      {error && (
+        <p className="text-red-500 text-center mb-4 font-medium">{error}</p>
+      )}
+
+      <form onSubmit={handleLogin} className="space-y-4">
         <input
-          placeholder="Email"
-          name="email"
           type="email"
+          placeholder="Email Address"
+          value={email}
           required
-          value={form.email}
-          onChange={handleChange}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-black outline-none"
         />
 
         <input
-          placeholder="Password"
           type="password"
-          name="password"
+          placeholder="Password"
+          value={password}
           required
-          value={form.password}
-          onChange={handleChange}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-black outline-none"
         />
 
-        <button disabled={loading} type="submit">
-          {loading ? "Logging in..." : "Login"}
+        <button
+          type="submit"
+          className="w-full bg-black text-white p-3 rounded-lg hover:bg-gray-800 transition"
+        >
+          Login
         </button>
       </form>
 
-      {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+      <p className="mt-4 text-center text-sm text-gray-600">
+        Don t have an account?{" "}
+        <a href="/register" className="text-black font-medium hover:underline">
+          Register
+        </a>
+      </p>
     </div>
   );
 }

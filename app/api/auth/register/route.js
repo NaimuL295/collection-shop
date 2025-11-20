@@ -1,10 +1,11 @@
+import { dbConnect } from "@/lib/dbConnect";
+import User from "@/models/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/User";
+
 
 export async function POST(req) {
-  await connectDB();
+  await dbConnect();
   const { name, email, password } = await req.json();
 
   const existingUser = await User.findOne({ email });

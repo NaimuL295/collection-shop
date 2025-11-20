@@ -2,27 +2,6 @@
 // import Product from "@/models/Product";
 
 import { dbConnect } from "@/lib/dbConnect";
-
-// import { dbConnect } from "@/lib/dbConnect";
-// import Product from "@/models/Product";
-
-// export async function GET(request) {
-//   await dbConnect();
-
-//   const { searchParams } = new URL(request.url);
-//   const q = searchParams.get("q");
-
-//   const products = await Product.find({
-//     name: { $regex: q, $options: "i" },
-//   });
-
-//   return Response.json({ success: true, products });
-// }
-
-
-
-
-;
  import Product from "@/models/Product";
 export async function GET(request) {
   await dbConnect();
