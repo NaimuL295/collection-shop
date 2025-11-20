@@ -300,7 +300,7 @@
 //       {/* 🔹 Overlay when sidebar is open */}
 //       {menuOpen && (
 //         <div
-//           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+//           className="fixed inset-0  bg-opacity-50 z-40 md:hidden"
 //           onClick={() => setMenuOpen(false)}
 //           aria-hidden="true"
 //         />
@@ -309,6 +309,8 @@
 //     </nav>
 //   );
 // }
+
+// Fixed Navbar with working search redirect
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -325,36 +327,29 @@ import {
   ClipboardList,
   Ticket,
   Settings,
-  ShoppingCart,
   User,
   Heart,
 } from "lucide-react";
 
-// Mock user hook
+// Mock User
 const useUser = () => {
-  // return null; // guest
-  return { role: "user", name: "Regular User" }; // user
-  // return { role: "superadmin", name: "Admin User" }; // superadmin
+  return { role: "user", name: "Regular User" };
 };
 
-// Admin menu items
 const adminMenuItems = [
-  { href: "/admin", icon: LayoutDashboard, label: "Dashboard Overview", shortLabel: "Dashboard" },
-  { href: "/admin/orders", icon: Package, label: "Orders Management", shortLabel: "Orders" },
-  { href: "/admin/customers", icon: Users, label: "Customers Management", shortLabel: "Customers" },
-  { href: "/admin/analytics", icon: BarChart3, label: "Sales Analytics", shortLabel: "Analytics" },
-  { href: "/inventory-management", icon: ClipboardList, label: "Inventory Management", shortLabel: "Inventory" },
-  { href: "/admin/discounts", icon: Ticket, label: "Discounts & Coupons", shortLabel: "Discounts" },
-  { href: "/admin/settings", icon: Settings, label: "Settings", shortLabel: "Settings" },
+  { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/admin/orders", icon: Package, label: "Orders" },
+  { href: "/admin/customers", icon: Users, label: "Customers" },
+  { href: "/admin/analytics", icon: BarChart3, label: "Analytics" },
+  { href: "/inventory-management", icon: ClipboardList, label: "Inventory" },
+  { href: "/admin/discounts", icon: Ticket, label: "Discounts" },
+  { href: "/admin/settings", icon: Settings, label: "Settings" },
 ];
 
-// User menu items
 const userMenuItems = [
-  { href: "/shop", label: "Shop" },
-  { href: "/cart", label: "Cart", icon: ShoppingCart },
   { href: "/wishlist", label: "Wishlist", icon: Heart },
-  { href: "/checkout", label: "Checkout" },
   { href: "/my-account", label: "My Account", icon: User },
+  { href: "/register", label: "My Account", icon: User },
 ];
 
 export default function Navbar() {
@@ -370,7 +365,7 @@ export default function Navbar() {
   const isSuperAdmin = user?.role === "superadmin";
   const isUser = user?.role === "user";
 
-  // Close Admin dropdown on outside click
+  // Close admin menu outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (adminMenuRef.current && !adminMenuRef.current.contains(e.target)) {
@@ -381,223 +376,144 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close search bar on outside click
-  useEffect(() => {
-    const handleOutsideClick = (e) => {
-      if (!e.target.closest("form") && searchOpen) {
-        setSearchOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
-  }, [searchOpen]);
-
-  const handleSearch = useCallback(
-    (e) => {
-      e.preventDefault();
-      if (!searchQuery.trim()) return;
-      router.push(`/api/search?query=${encodeURIComponent(searchQuery)}`);
-      setSearchOpen(false);
-    },
-    [searchQuery, router]
-  );
-
-  const closeAllMenus = useCallback(() => {
-    setMenuOpen(false);
-    setAdminMenuOpen(false);
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    router.push(`/search?query=${encodeURIComponent(searchQuery)}`);
     setSearchOpen(false);
-  }, []);
-
-  const handleNavLinkClick = useCallback(() => {
-    closeAllMenus();
-  }, [closeAllMenus]);
-
-  const toggleAdminMenu = useCallback((e) => {
-    e.stopPropagation();
-    setAdminMenuOpen((prev) => !prev);
-  }, []);
+  };
 
   return (
-    <nav className="relative bg-white dark:bg-gray-900 shadow-sm">
-      <div className="max-w-7xl flex items-center justify-between mx-auto p-4">
+    <nav className="shadow-sm border-b bg-white sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto p-4 flex justify-between items-center">
+        <Link href="/" className="text-2xl font-bold">XXXXX Fashion</Link>
 
-        {/* Brand */}
-        <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-white">
-          XXXXX Fashion
-        </Link>
-
-        {/* Desktop Navigation */}
-        <ul className="hidden md:flex space-x-6 font-medium text-gray-900 dark:text-white items-center">
-
-          {/* Admin Menu */}
+        {/* Desktop Menu */}
+        <ul className="hidden md:flex items-center space-x-6 font-medium">
           {isSuperAdmin && (
             <li className="relative" ref={adminMenuRef}>
               <button
-                onClick={toggleAdminMenu}
-                className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-lg"
+                onClick={() => setAdminMenuOpen((prev) => !prev)}
+                className="px-3 py-2 bg-blue-600 text-white rounded-lg flex items-center space-x-1"
               >
                 <span>Dashboard</span>
                 <ChevronDown className={`w-4 h-4 ${adminMenuOpen ? "rotate-180" : ""}`} />
               </button>
 
               {adminMenuOpen && (
-                <div className="absolute top-12 right-0 w-64 bg-white dark:bg-gray-800 shadow-xl border rounded-lg z-50">
-                  <div className="p-3 border-b">
-                    <p className="text-sm font-medium">{user?.name}</p>
-                    <p className="text-xs text-gray-500">Super Admin</p>
-                  </div>
-
-                  <div className="p-2 space-y-1">
-                    {adminMenuItems.map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className="flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-md"
-                          onClick={() => setAdminMenuOpen(false)}
-                        >
-                          <Icon className="w-4 h-4" />
-                          <span>{item.label}</span>
-                        </Link>
-                      );
-                    })}
-                  </div>
+                <div className="absolute w-56 right-0 bg-white shadow-lg border rounded-lg mt-2">
+                  {adminMenuItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="flex items-center space-x-2 px-4 py-2 hover:bg-gray-100"
+                        onClick={() => setAdminMenuOpen(false)}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span>{item.label}</span>
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
             </li>
           )}
 
           {/* User Menu */}
-          {isUser &&
-            userMenuItems.map((item) => {
+          {isUser && (
+            <>
+              {userMenuItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <li key={item.href}>
+                    <Link href={item.href} className="flex items-center gap-1 hover:text-blue-600">
+                      {Icon && <Icon className="w-4 h-4" />} {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </>
+          )}
+
+          {/* Desktop search */}
+          <form onSubmit={handleSearchSubmit} className="flex items-center border px-3 py-1 rounded-lg">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search..."
+              className="outline-none"
+            />
+            <button type="submit"><Search className="w-5 h-5" /></button>
+          </form>
+        </ul>
+
+        {/* Mobile Icons */}
+        <div className="md:hidden flex items-center gap-4">
+          <button onClick={() => setSearchOpen((prev) => !prev)}>
+            <Search className="w-6 h-6" />
+          </button>
+          <button onClick={() => setMenuOpen((prev) => !prev)}>
+            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Search */}
+      {searchOpen && (
+        <div className="p-4 md:hidden border-t bg-white">
+          <form onSubmit={handleSearchSubmit} className="flex gap-2">
+            <input
+              type="text"
+              className="flex-1 p-2 border rounded-lg"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button className="p-2 bg-blue-600 text-white rounded-lg"><Search /></button>
+          </form>
+        </div>
+      )}
+
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <div className="md:hidden fixed right-0 top-0 w-64 h-full bg-white shadow-lg z-50 p-4">
+          <button className="mb-4" onClick={() => setMenuOpen(false)}><X /></button>
+
+          <ul className="space-y-2">
+            {isSuperAdmin && adminMenuItems.map((item) => {
               const Icon = item.icon;
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="flex items-center space-x-1 hover:text-blue-700"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg"
                   >
-                    {Icon && <Icon className="w-4 h-4" />}
-                    <span>{item.label}</span>
+                    <Icon className="w-4 h-4" /> {item.label}
                   </Link>
                 </li>
               );
             })}
 
-          {/* Guest → Nothing (Login/Register removed) */}
-        </ul>
-
-        {/* Mobile Icons */}
-        <div className="flex md:hidden items-center space-x-2">
-          <button
-            onClick={() => {
-              setSearchOpen(!searchOpen);
-              setMenuOpen(false);
-            }}
-            className="p-2 rounded-lg"
-          >
-            <Search className="w-5 h-5" />
-          </button>
-
-          <button
-            onClick={() => {
-              setMenuOpen(!menuOpen);
-              setSearchOpen(false);
-            }}
-            className="p-2 rounded-lg"
-          >
-            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        <div
-          className={`fixed top-0 right-0 h-full w-64 bg-white dark:bg-gray-900 shadow-xl transform ${
-            menuOpen ? "translate-x-0" : "translate-x-full"
-          } transition-transform duration-300 ease-in-out md:hidden z-50`}
-        >
-          <div className="flex justify-between items-center p-4 border-b">
-            {user && (
-              <div className="text-sm">
-                <p className="font-medium">{user?.name}</p>
-                <p className="text-xs text-gray-500">{user?.role}</p>
-              </div>
-            )}
-
-            <button onClick={() => setMenuOpen(false)}>
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-
-          <ul className="flex flex-col space-y-1 p-4">
-
-            {/* Admin mobile menu */}
-            {isSuperAdmin &&
-              adminMenuItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className="flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-md"
-                      onClick={handleNavLinkClick}
-                    >
-                      <Icon className="w-4 h-4" />
-                      <span>{item.shortLabel}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-
-            {/* User mobile menu */}
-            {isUser &&
-              userMenuItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className="flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-md"
-                      onClick={handleNavLinkClick}
-                    >
-                      {Icon && <Icon className="w-4 h-4" />}
-                      <span>{item.label}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-
-            {/* Guest menu → Removed completely */}
+            {isUser && userMenuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg"
+                  >
+                    {Icon && <Icon className="w-4 h-4" />} {item.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
-
-        {/* Mobile Search */}
-        {searchOpen && (
-          <div className="absolute top-16 left-0 right-0 p-4 md:hidden bg-white border-b z-40">
-            <form onSubmit={handleSearch} className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 p-2 border rounded-lg"
-                autoFocus
-              />
-              <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg">
-                <Search className="w-4 h-4" />
-              </button>
-            </form>
-          </div>
-        )}
-      </div>
-
-      {menuOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-          onClick={() => setMenuOpen(false)}
-          aria-hidden="true"
-        />
       )}
     </nav>
   );

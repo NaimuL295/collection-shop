@@ -183,7 +183,7 @@ export default function Checkout() {
       setLoading(false);
     }
   };
-console.log();
+console.log(cart);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -295,17 +295,7 @@ console.log();
                   <CreditCard className="w-5 h-5 text-blue-600" />
                   <h2 className="text-xl font-semibold">Payment Method</h2>
                 </div>
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                  <div className="flex items-center">
-                    <div className="w-12 h-8 bg-orange-500 rounded flex items-center justify-center text-white font-bold mr-3">
-                      SSL
-                    </div>
-                    <div>
-                      <p className="font-semibold">SSLCommerz</p>
-                      <p className="text-sm text-gray-600">Secure payment gateway</p>
-                    </div>
-                  </div>
-                </div>
+              
               </div>
             </div>
 
@@ -325,18 +315,19 @@ console.log();
 
                   return (
                     <div key={item._id} className="flex items-center space-x-4 border-b pb-4">
-                      <div className="relative w-16 h-16 flex-shrink-0">
-                        {/* <Image
-                          src={item.images?.[0]?.url || item.image || "/default-product.jpg"}
-                          alt={item.name || "Product"}
-                          width={64}
-                          height={64}
-                          className="w-16 h-16 object-cover rounded"
-                          onError={(e) => {
-                            e.target.src = "/default-product.jpg";
-                          }}
-                        /> */}
-                      </div>
+                    <div className="relative w-16 h-16 flex-shrink-0">
+  <Image
+    src={item.images?.[0]?.url || "/default-product.jpg"}
+    alt={item.name || "Product"}
+    width={64}
+    height={64}
+    className="w-16 h-16 object-cover rounded"
+    onError={(e) => {
+      e.target.src = "/default-product.jpg";
+    }}
+  />
+</div>
+
                       <div className="flex-1 min-w-0">
                         <h3 className="font-medium text-sm truncate">{item.name || "Unknown Product"}</h3>
                         <p className="text-gray-600 text-xs">
@@ -413,7 +404,7 @@ console.log();
                 className="w-full mt-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-semibold"
               >
                 <CreditCard className="w-5 h-5" />
-                {loading ? "Processing..." : `Pay $${formatPrice(total)} via SSLCommerz`}
+                {loading ? "Processing..." : `Pay $${formatPrice(total)}`}
               </button>
             </div>
           </div>

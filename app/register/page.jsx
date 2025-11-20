@@ -1,66 +1,89 @@
 "use client";
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/context/AuthContext";
 
-export default function RegisterPage() {
+export default function Register() {
   const router = useRouter();
-  const { setUser } = useContext(AuthContext);
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        body: JSON.stringify({ name, email, password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (data.error) {
-      setError(data.error);
-    } else {
-      setUser(data.user); // save user globally
-      router.push("/");
+      if (data.success) {
+        router.push("/"); // SUCCESS → HOME
+      } else {
+        setError(data.error || "Something went wrong");
+      }
+    } catch (err) {
+      setError("Network error");
     }
   };
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>Register</h1>
+    <div className="max-w-md mx-auto bg-white shadow-lg rounded-xl p-8 mt-10">
+      <h1 className="text-3xl font-bold text-center mb-6">Create Account</h1>
 
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      {error && (
+        <p className="text-red-500 text-center mb-4 font-medium">{error}</p>
+      )}
+
+      <form onSubmit={handleRegister} className="space-y-4">
         <input
-          placeholder="Name"
-          name="name"
-          value={form.name}
-          onChange={handleChange}
+          type="text"
+          placeholder="Full Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-black outline-none"
         />
+
         <input
-          placeholder="Email"
-          name="email"
-          value={form.email}
-          onChange={handleChange}
+          type="email"
+          placeholder="Email Address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-black outline-none"
         />
+
         <input
-          placeholder="Password"
           type="password"
-          name="password"
-          value={form.password}
-          onChange={handleChange}
+          placeholder="Password (min 6 chars)"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-black outline-none"
         />
 
-        <button type="submit">Register</button>
+        <button
+          type="submit"
+          className="w-full bg-black text-white p-3 rounded-lg hover:bg-gray-800 transition"
+        >
+          Register
+        </button>
       </form>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      <p className="mt-4 text-center text-sm text-gray-600">
+        Already have an account?{" "}
+        <a href="/login" className="text-black font-medium hover:underline">
+          Login
+        </a>
+      </p>
     </div>
   );
 }
