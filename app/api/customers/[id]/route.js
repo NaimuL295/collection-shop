@@ -8,7 +8,8 @@ export async function GET(request, { params }) {
   try {
     await dbConnect();
     
-    const { id } = params;
+    // Await the params promise
+    const { id } = await params;
 
     const customer = await User.findById(id).select('-password');
     
@@ -27,7 +28,7 @@ export async function GET(request, { params }) {
 
     // Get customer statistics
     const customerStats = await Order.aggregate([
-      { $match: { user: id } },
+      { $match: { user: customer._id } },
       {
         $group: {
           _id: '$user',
@@ -68,7 +69,8 @@ export async function PUT(request, { params }) {
   try {
     await dbConnect();
     
-    const { id } = params;
+    // Await the params promise
+    const { id } = await params;
     const body = await request.json();
 
     const customer = await User.findByIdAndUpdate(
@@ -92,6 +94,56 @@ export async function PUT(request, { params }) {
 
   } catch (error) {
     console.error('Error updating customer:', error);
+    
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return NextResponse.json(
+        { success: false, message: errors.join(', ') },
+        { status: 400 }
+      );
+    }
+    
+    // Handle duplicate key errors
+    if (error.code === 11000) {
+      return NextResponse.json(
+        { success: false, message: 'Email already exists' },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request, { params }) {
+  try {
+    await dbConnect();
+    
+    // Await the params promise
+    const { id } = await params;
+
+    const customer = await User.findById(id);
+
+    if (!customer) {
+      return NextResponse.json(
+        { success: false, message: 'Customer not found' },
+        { status: 404 }
+      );
+    }
+
+    await User.findByIdAndDelete(id);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Customer deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Error deleting customer:', error);
     return NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 }
