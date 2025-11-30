@@ -5,8 +5,12 @@ import { Heart, ShoppingCart, Trash2, ArrowLeft, X } from "lucide-react";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 export default function WishlistPage() {
+const {user}=useAuth()
+console.log(user);
+
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [removingId, setRemovingId] = useState(null);
@@ -28,56 +32,52 @@ export default function WishlistPage() {
   //  REMOVE FROM WISHLIST - SINGLE ITEM
   // ------------------------------
 
-  const removeFromWishlist = async (productId, productName) => {
-    if (typeof window === "undefined") return;
+ const removeFromWishlist = async (productId, productName) => {
+  if (typeof window === "undefined") return;
 
-    setRemovingId(productId);
+  const userId = user?.email; 
+  if (!userId) {
+    toast.error("User not logged in");
+    return;
+  }
 
-    try {
-      // Remove from API
-      const response = await fetch(`/api/wishlist/${productId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+  setRemovingId(productId);
 
-      const data = await response.json();
+  try {
+    const response = await fetch(`/api/wishlist/${productId}?userId=${userId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-      if (data.success) {
-        // Remove from local storage and state
-        const updatedWishlist = wishlist.filter(item => item._id !== productId);
-        setWishlist(updatedWishlist);
-        localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+    const data = await response.json();
 
-        toast.success(`Removed ${productName} from wishlist 💔`, {
-          icon: '❌',
-          duration: 3000,
-          style: {
-            background: '#fef2f2',
-            color: '#dc2626',
-            border: '1px solid #fecaca',
-          },
-        });
-      } else {
-        throw new Error(data.message || "Failed to remove from wishlist");
-      }
-    } catch (error) {
-      console.error("Remove from wishlist error:", error);
-      
-      // Fallback: Remove from localStorage only if API fails
+    if (data.success) {
       const updatedWishlist = wishlist.filter(item => item._id !== productId);
       setWishlist(updatedWishlist);
       localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
 
-      toast.error("Failed to remove from wishlist, removed locally", {
-        icon: '⚠️',
+      toast.success(`Removed ${productName} from wishlist 💔`, {
+        icon: '❌',
         duration: 3000,
       });
-    } finally {
-      setRemovingId(null);
+    } else {
+      throw new Error(data.message || "Failed to remove");
     }
-  };
+  } catch (error) {
+    console.error("API Remove Error:", error);
+
+    const updatedWishlist = wishlist.filter(item => item._id !== productId);
+    setWishlist(updatedWishlist);
+    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+
+    toast.error("API failed, removed locally ⚠️");
+  } finally {
+    setRemovingId(null);
+  }
+};
+
 
   // ------------------------------
   //  CLEAR ALL WISHLIST

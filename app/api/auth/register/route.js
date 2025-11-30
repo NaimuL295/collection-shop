@@ -1,7 +1,7 @@
 import { dbConnect } from "@/lib/dbConnect";
 import User from "@/models/User";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 
 export async function POST(req) {
   try {
@@ -9,37 +9,71 @@ export async function POST(req) {
 
     const { name, email, password } = await req.json();
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser)
-      return new Response(JSON.stringify({ error: "User already exists" }), { status: 400 });
+    // Validation
+    if (!name || !email || !password) {
+      return Response.json(
+        { error: "All fields are required" },
+        { status: 400 }
+      );
+    }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Clean inputs
+    const cleanName = name.trim();
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
 
-    // Create user
+    // Check if user exists
+    const existingUser = await User.findOne({ email: cleanEmail });
+    if (existingUser) {
+      return Response.json(
+        { error: "User already exists" },
+        { status: 400 }
+      );
+    }
+
+    // ✅ CLEAN: Let model handle hashing automatically
     const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
+      name: cleanName,
+      email: cleanEmail,
+      password: cleanPassword, // Plain text - model will hash it
     });
 
-    // Create JWT
+    // Generate JWT
     const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.role || "user" },
+      { 
+        id: user._id, 
+        email: user.email,
+        role: user.role 
+      },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    return new Response(JSON.stringify({ success: true, user: { id: user._id, email: user.email } }), {
-      status: 200,
-      headers: {
-        "Set-Cookie": `token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
-        "Content-Type": "application/json",
-      },
+    // Set cookie
+    const cookieStore = await cookies();
+    cookieStore.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      sameSite: "strict"
     });
+
+    return Response.json({
+      success: true,
+      user: { 
+        id: user._id, 
+        name: user.name,
+        email: user.email,
+        role: user.role 
+      },
+    }, { status: 201 });
+
   } catch (err) {
-    console.error(err);
-    return new Response(JSON.stringify({ error: "Registration failed" }), { status: 500 });
+    console.error("Registration error:", err);
+    return Response.json(
+      { error: "Registration failed" }, 
+      { status: 500 }
+    );
   }
 }
