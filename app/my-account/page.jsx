@@ -2,9 +2,9 @@
 
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
-
+import { useUse } from "@auth0/nextjs-auth0/client";
 export default function AccountPage() {
-  const { user } = useAuth();
+
 console.log(user);
 
   return (

@@ -360,8 +360,10 @@ import {
   ShoppingBag,
 } from "lucide-react";
 
-import { useAuth } from "@/context/AuthContext";
+
 import LogoutButton from "./LogoutButton";
+import { useAuth } from "@/app/hooks/useAuth";
+
 
 // Admin Menu
 const adminMenuItems = [

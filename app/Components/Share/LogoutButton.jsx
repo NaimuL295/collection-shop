@@ -1,16 +1,11 @@
 "use client";
-import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 export default function LogoutButton() {
   const router = useRouter();
-  const { setUser } = useAuth();
 
-  const handleLogout = async () => {
-    await fetch("/api/auth/logout");
-
-    setUser(null);        // Context থেকে user remove
-    router.push("/login") // Login page এ redirect
+  const handleLogout = () => {
+    window.location.href = "/api/auth/logout"; // Redirect → Auth0 logout
   };
 
   return (
@@ -22,4 +17,3 @@ export default function LogoutButton() {
     </button>
   );
 }
-{/* <LogoutButton /> */}
